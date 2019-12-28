@@ -24,7 +24,7 @@ Get-Command Get-*
 # find all Command begin with Add
 Get-Command -Verb Add
 # command could be invoked by alias
-gcm # is equal to Get-Command
+# gcm  is equal to Get-Command
 # find the original commands
 Get-Alias gcm
 # find the alias for the original commands --> gps, ps
