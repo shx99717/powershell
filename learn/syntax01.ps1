@@ -25,7 +25,7 @@ Write-Host "the double number is $aNumber"
 $aList = 1, 2, 3, 4, 5
 Write-Host "the list is $aList"
 
-$anEmptyList = @{}
+$anEmptyList = @{}  # force the value to be an array by using @{}
 Write-Host "the empty list is $anEmptyList"
 
 $anotherString = $aList -join '--'

@@ -216,3 +216,100 @@ $a %= 3
 # -join
 # Joins given strings to a single string
 -join "a", "b", "c"
+
+
+#####################################
+# Type Operator
+#####################################
+# -is
+# Compares instance of the specified .NET type and return True if equal.	
+32 -is "int"
+# -isNot
+# Compares the instance of specified .NET and return False if not equal.
+32 -isNot "int"
+# -as	
+# Converts the given value to the specified type
+"12/31/07" -as [DateTime]
+
+
+#####################################
+# Unary Operator
+#####################################
+# ++	
+# Increments value by 1and assign back
+$a = 9
+$a++
+
+# -- Decrement value by 1 and assign back
+$a = 9
+$a--
+
+
+#####################################
+# Special Operator
+#####################################
+# ----------- @ operator - usage 1: The array sub-expression operator
+# The array sub-expression operator creates an array, even if it contains zero or one object.
+$b = @()
+$b.Count
+# ---------- @ operator - usage 2: Hash initializer
+$pets = @{Cat = 'Frisky'; Dog = 'Spot'; Fish = 'Nimo'; Hamster = 'Whiskers'}
+# ---------- @ operator - usage 3: Splatting 
+# Let's you invoke a cmdlet with parameters from an array or a hash-table
+# >> SPLATTING WITH HASH TABLES
+# the tedious way
+Copy-Item -Path "test.txt" -Destination "test2.txt" -WhatIf
+# the hash tables way
+$HashArguments = @{
+    Path = "test.txt";
+    Destination = "test2.txt";
+    WhatIf = $true;
+}
+Copy-Item @HashArguments
+# >> SPLATTING WITH ARRAYS
+# the tedious way
+Copy-Item "test.txt" "test2.txt" -WhatIf
+# the list way
+$ArrayArguments = "test.txt", "test2.txt"
+Copy-Item @ArrayArguments -WhatIf
+# ---------- @ operator - usage 4: Here strings
+# Let's you create strings with easily embedded quotes, typically used for multi-line strings
+@(Get-WmiObject win32_logicalDisk)
+$data = @"
+    line one
+  line two
+         something "quoted" here
+"@
+# ---------- @ operator - usage 5: Display the result of one or more statements as a list.
+@(Get-Process -Name chrome) # this is now a list
+@(Get-Process -Name chrome)[0] # the entry at index 0
+
+# &	
+# Runs a command, script or block.
+$c = "Get-ExecutionPolicy"
+& $c
+
+#[ ] - cast
+# Converts object to specified type
+[int64]$a = 34
+# no cast
+$content1 = Get-Content .\sample.xml
+$content1.GetType() # an Object
+# cast way 1 = more powershell style
+[xml]$content2 = Get-Content .\sample.xml
+$content2.GetType() # XmlDocument
+# cast way 2 - more java style
+$content3 =[xml](Get-Content .\sample.xml)
+$content3.GetType() # XmlDocument
+
+#,
+# Comma creates an array.
+$myArray = 1,2,3
+
+# -f
+# Format operator, formats string by format methods	
+"{0} {1,-10} {2:N}" -f 1,"hello",[math]::pi
+
+# ..
+# Generates a range
+1..10

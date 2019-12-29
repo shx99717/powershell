@@ -25,3 +25,5 @@ switch($val) {
   { 'x' -contains 'x'}    { "FALSE! -contains is for lists!"; break }
   default                 { "Others" }
 }
+
+--- here The classic for

@@ -1,0 +1,14 @@
+<cars>
+    <car>
+        <brand>Benz</brand>
+        <price>60000</price>
+        <year>2012</year>
+        <country>DE</country>
+    </car>
+    <car>
+        <brand>Toyota</brand>
+        <price>32000</price>
+        <year>2014</year>
+        <country>JP</country>
+    </car>
+</cars>
