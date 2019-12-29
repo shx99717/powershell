@@ -1,6 +1,6 @@
 #######################################################################
 # Most cmdlets and functions follow the Verb-Noun naming convention
-
+#######################################################################
 
 # echo = Write-Host
 echo Hello!
@@ -13,6 +13,7 @@ echo 'This is the second line';
 
 #######################################################################
 # Variable declaration
+#######################################################################
 $aString = "some string"
 Write-Host $aString
 Write-Host "$aString with evaluation"     # with evaluation, will expand variable
@@ -35,6 +36,7 @@ Write-Host "the hash table is $aHashTable"
 
 #######################################################################
 # Using variables
+#######################################################################
 Write-Output $aString
 Write-Output "with evaluation: $aString"
 Write-Output "$aString has length of $($aString.Length)"
@@ -48,6 +50,7 @@ Write-Output @"
 
 #######################################################################
 # Built-in variables
+#######################################################################
 Write-Output "Booleans: $TRUE and $FALSE"
 Write-Output "Empty value: $NULL"
 Write-Output "Last program's return value: $?"
@@ -66,5 +69,6 @@ Write-Output  "Unbound arguments: $($Args -join ', ')."
 
 #######################################################################
 # Inline another file with dot operator
+#######################################################################
 . .\learn\dummy.ps1
 
