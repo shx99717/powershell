@@ -26,4 +26,92 @@ switch($val) {
   default                 { "Others" }
 }
 
---- hello here The classic for
+
+# The classic for
+for($i = 1; $i -le 10; $i++) {
+    "Loop number $i"
+}
+
+# or shorter
+1 .. 10 | % { "Loop number $_" }
+
+# foreach
+foreach ($var in 'var1', 'var2', 'var3') {
+    Write-Output $var
+}
+# same as above
+foreach ($var in @('var1', 'var2', 'var3')) {
+    Write-Output $var
+}
+
+# while
+$index = 0
+while ($index -lt 20) {
+    Write-Output "hello world index = $index"
+    $index++;
+}
+
+# do while
+$index = 0
+do {
+    Write-Output "hello world index = $index"
+    $index++;
+} while ($index -lt 20)
+
+# do block will be execute until (the condition become true)
+$index = 0
+do {
+    Write-Output "hello world index = $index"
+    $index++;
+} until ($index -gt 20)
+
+
+# Exception handling
+try {
+
+} catch {
+
+} finally {
+
+}
+
+
+try {
+
+} catch [System.NullReferenceException] {
+    Write-Output $_.Exception | Format-List -Force
+}
+
+
+
+#########################################################
+# Get all providers
+#########################################################
+Get-PSProvider
+# Name                 Capabilities                                                                            Drives
+# ----                 ------------                                                                            ------
+# Registry             ShouldProcess, Transactions                                                             {HKLM, HKCU}
+# Alias                ShouldProcess                                                                           {Alias}
+# Environment          ShouldProcess                                                                           {Env}
+# FileSystem           Filter, ShouldProcess, Credentials                                                      {C, E, F, G...}
+# Function             ShouldProcess                                                                           {Function}
+# Variable             ShouldProcess                                                                           {Variable}
+# Certificate          ShouldProcess                                                                           {Cert}
+# WSMan                Credentials                                                                             {WSMan}
+
+
+
+#########################################################
+# Pipeline
+#########################################################
+# Results of the previous cmdlet can be passed to the next as input.
+# `$_` is the current object in the pipeline object.
+# { ... } is the script block
+Get-ChildItem | Where-Object { $_.Name -match 'l' } | Export-Csv export.txt
+# ls = Get-ChildItem
+# ?  = Where-Object
+ls | ? { $_.Name -match 'l' } | ConvertTo-HTML | Out-File export.html
+
+
+
+

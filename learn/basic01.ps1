@@ -31,6 +31,8 @@ Get-Alias gcm
 Get-Alias -Definition Get-Process
 # get the help doc for command
 Get-Help Get-Command
+# get the complete help documentation
+Get-Help Get-Command -Full
 # get the member of the result
 Get-Process | Get-Member # gps | gm  or Get-Process | gm
 # use GUI to fill in the parameters
