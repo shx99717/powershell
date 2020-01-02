@@ -113,5 +113,26 @@ Get-ChildItem | Where-Object { $_.Name -match 'l' } | Export-Csv export.txt
 ls | ? { $_.Name -match 'l' } | ConvertTo-HTML | Out-File export.html
 
 
+# ` is the line continuation character. Or end the line with a |
+Get-Process | Sort-Object ID -Descending | Select-Object -First 10 Name,Id,VM `
+| Stop-Process -WhatIf
 
 
+# Use % as a shorthand for ForEach-Object
+@(3,4,5) | ForEach-Object `
+    -Begin { "Starting"; $counter = 0 } `
+    -Process { "Processing $_"; $counter++ } `
+    -End { "Finishing: $counter" }
+
+@(3,4,5) | % `
+    -Begin { "Starting"; $counter = 0 } `
+    -Process { "Processing $_"; $counter++ } `
+    -End { "Finishing: $counter" }
+
+# Get-Process as a table with three columns
+# The third column is the value of the VM property in MB and 2 decimal places
+# Computed columns can be written more verbose as:
+# `@{name='lbl';expression={$_}`
+Get-Process | Format-Table Id, Name, @{name='VM(MB)'; expression={'{0:n2}' -f ($_.VM / 1MB)}} -AutoSize
+
+-- go check basic01.ps1, line 19 and learn x in y --> Functions

@@ -15,6 +15,8 @@ Set-ExecutionPolicy AllSigned
 # Current PowerShell version:
 $PSVersionTable
 
+# output messages
+-- here https://4sysops.com/archives/powershell-streams-write-host-write-output-write-verbose-write-error/
 
 #########################################
 # How to get help
@@ -35,6 +37,11 @@ Get-Help Get-Command
 Get-Help Get-Command -Full
 # get the member of the result
 Get-Process | Get-Member # gps | gm  or Get-Process | gm
+# If you get confused in the pipeline use `Get-Member` for an overview
+# of the available methods and properties of the pipelined objects:
+ls | Get-Member
+Get-Date | gm
+
 # use GUI to fill in the parameters
 Show-Command Get-EventLog
 # to update the help doc, please run as administrator
