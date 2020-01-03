@@ -19,14 +19,16 @@ $PSVersionTable
 # A good script generally use Write-Verbose a lot! 
 # The perfect PowerShell script/function uses all of the above in the right mix for the best user/developer experience.
 # 
-# - Write-Host
-# - Write-Output
-# - Write-Debug 
-# - Write-Verbose
-# - Write-Information
-# - Write-Warning 
-# - Write-Error/Throw
-# - Write-Progress
+# - Write-Host          in PowersShell 5+, internally use Write-Information
+# - Write-Progress      
+# - Write-Output        stream #1  Success Stream
+# - Write-Error/Throw   stream #2  Error Stream
+# - Write-Warning       stream #3  Warning Stream
+# - Write-Verbose       stream #4  Verbose Stream
+# - Write-Debug         stream #5  Debug Stream
+# - Write-Information   stream #6  Information Stream, introduced in PowerShell 5
+#                       stream *   All Streams
+
 
 # <<<<< Write-Verbose and Write-Debug >>>>>
 # e.g. we have a function
@@ -173,6 +175,76 @@ for ($outerCounter=1; $outerCounter -lt $outerLoopMax; $outerCounter++) {
         Start-Sleep -Milliseconds 10
     }
 }
+
+
+# <<<<<Write-Information>>>>>
+# The problem of Write-Host
+# Write-Host doesn't go to a stream, It goes straight to the host program, such as the console, ISE, or PowerShell Studio
+# if you put Write-Host in a script, the end-user can't suppress it, can't save it, and can't redirect it.
+# - You can't suppress Write-Host output because there's no preference that silences it.
+# - You can’t save Write-Host output in a variable, because the assignment operator uses the output stream. The Write-Host output 
+#   is written to the host program, but the variable is empty.
+# - You can't pass Write-Host output down the pipeline, because only the output stream goes down the pipeline.
+# - You can't redirect Write-Host output, because redirection sends output from one stream to another, and Write-Host isn't part of any stream.
+# This most elegant solution is provided by the information stream and the Write-Information cmdlet. The information stream is a new output stream that works much like the error and warning streams.
+# which has all the benefits above
+# The information stream has a preference variable, $InformationPreference, with a default value of SilentlyContinue, 
+# and a common parameter, InformationAction, to override the preference for the current command. It also has an InformationVariable 
+# common parameter that saves the stream content in the specified variable.
+# The new cmdlet, Write-Information, provides information to the user without polluting the output stream. Think of it as a rework of Write-Host(in PowerShell 5+). Both Write-Host and 
+# Write-Information write to the information stream, but they behave differently, because Write-Host must be backward compatible.
+
+# it will write into InformationRecord objects, the output is determined by the 
+# $InformationPreference variable, which is set to SilentlyContinue by default
+# the below line print nothing
+Write-Information -MessageData 'Hello from information'
+$InformationPreference
+
+$InformationPreference = 'Continue' # The global setting
+Write-Information -MessageData 'Hello from information'
+
+$InformationPreference = 'SilentlyContinue' # The global setting
+Write-Information -MessageData 'Hello from information' -InformationAction Continue # the local setting
+
+# Now after Powershell 5+, Save the output of Write-Host and Write-Information output in a variable using InformationVariable
+Write-Information -MessageData 'Hello from information' -InformationVariable informationMessage
+$informationMessage
+Write-Host -Object 'Hello from information' -InformationVariable hostMessage
+$hostMessage
+# Because they write to the information stream (stream #6), you can redirect the output of
+# Write-Host and Write-Information to a file.
+Write-Host -Object 'Hello from host' 6> .\hostmsg.txt
+
+# Key difference between Write-Host and Write-Information
+# - Write-Information responds to the values of the $InformationPreference variable and the InformationAction common parameter. Write-Host does not.
+# - Write-Host has parameters that change its display, for example, ForegroundColor and BackgroundColor. Write-Information does not.
+
+
+#########################################
+# Understand Streams, Redirection and Write-Host
+#########################################
+# By default, PowerShell sends its command output to the PowerShell console. However, you can direct the output to a text file,
+# and you can redirect error output to the regular output stream.
+# You can use the following methods to redirect output:
+# - Use the Out-File cmdlet, which sends command output to a text file. Typically, you use the Out-File 
+#   cmdlet when you need to use its parameters, such as the Encoding, Force, Width, or NoClobber parameters.
+# - Use the Tee-Object cmdlet, which sends command output to a text file and then sends it to the pipeline.
+# - Use the PowerShell redirection operators.
+
+# The PowerShell redirection operators are as follows, where n represents the stream number. 
+# The Success stream #1  is the default if no stream is specified.
+# >	    Send specified stream to a file.	                        n>
+# >>	Append specified stream to a file.	                        n>>
+# >&1	Redirects the specified stream to the Success stream.	    n>&1
+
+# e.g. Redirect both errors and output to one file
+# where C: is existed but Z: is not, the error message of Z: not found will be put into stream#2 and we
+# will redirected the Error stream to success stream
+# 2 is Error stream, 1 is the Success stream
+# This example runs dir on one item that will succeed, and one that will error.
+# It uses 2>&1 to redirect the Error stream to the Success stream, and > to send the resultant Success stream to a file called dir.log
+Get-ChildItem 'C:\', 'Z:\' 2>&1 > result.log
+
 
 #########################################
 # How to get help
