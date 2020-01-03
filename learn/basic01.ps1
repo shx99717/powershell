@@ -16,7 +16,163 @@ Set-ExecutionPolicy AllSigned
 $PSVersionTable
 
 # output messages
--- here https://4sysops.com/archives/powershell-streams-write-host-write-output-write-verbose-write-error/
+# A good script generally use Write-Verbose a lot! 
+# The perfect PowerShell script/function uses all of the above in the right mix for the best user/developer experience.
+# 
+# - Write-Host
+# - Write-Output
+# - Write-Debug 
+# - Write-Verbose
+# - Write-Information
+# - Write-Warning 
+# - Write-Error/Throw
+# - Write-Progress
+
+# <<<<< Write-Verbose and Write-Debug >>>>>
+# e.g. we have a function
+function Get-Sum {
+    #  we turned our function into what is called an "advanced function" that offers support for native cmdlet
+    [CmdletBinding()]
+    param (
+        [int] $a,
+        [int] $b
+    )
+    Write-Verbose ("[Verbose output] About to add [{0}] and [{1}]" -f $a, $b)
+    Write-Debug ("[Debug output] About to add [{0}] and [{1}]" -f $a, $b)
+    Write-Debug ("[Debug output] another debug line")
+    $a + $b
+}
+# call it without -Verbose, won't print the verbose line
+Get-Sum -a 1 -b 2
+# call it with -Verbose, print the verbose line
+Get-Sum -a 1 -b 2 -Verbose
+# call it with -Debug will stop the command at where we have Write-Debug
+Get-Sum -a 1 -b 2 -Debug
+# call it with -Debug and -Verbose
+Get-Sum -a 1 -b 2 -Debug -Verbose
+
+
+# <<<<<Write-Host>>>>>
+# this is quite simply the cmdlet to use to write information to the console that you want the user of your script see.
+# The output written this way is always displayed. It has color support too!
+Write-Host "This text will be displayed on the console!"
+Write-Host "This is yellow text on red background!" -BackgroundColor Red -ForegroundColor Yellow
+0..20 | ForEach-Object { Write-Host '.' -NoNewline} # no line break at the end
+
+# <<<<<Write-Output>>>>>
+# This cmdlet is used to write output to the pipeline. If it is part of a pipeline, the output is passed down to the receiving command. 
+# The values written this way can be captured into a variable. It gets written to the console if it is not passed down the pipeline or 
+# assigned to a variable. This is also the same as simply stating something like a variable or a constant (makes it a return value) on its 
+# own line by itself within your code, without any assignment. The output written this way can be discarded by piping the to Out-Null. 
+# Pass-thru the pipeline
+Write-Output "My return value" | Out-GridView
+# Assign to a variable
+$myString = Write-Output "My return value"
+$myString
+# Writing output without using Write-Output cmdlet
+function Get-Sum2($a, $b)
+{
+   $a + $b
+   # "$a + $b" is the same as saying "Write-Output ($a + $b)"
+   # also return $a + $b is okay
+}
+# Returning values "intact"
+# Sometimes, complex datatypes get mangled by PowerShell after being output. They get turned into simpler datatypes one level down in the 
+# object hierarchy. For example when a .NET DataTable is returned, it may turn that into a array of .NET DataRow objects which is the immediate 
+# child type in the object hierarchy of DataTable. To prevent this, just prefix the return line with a “comma”. This will prevent PowerShell 
+# from un-nesting/interpreting your output.
+function Get-DataTable()
+{
+   #Some logic...followed by return value
+   #The comma prefix will write to pipeline with value intact!
+   ,$myDataTable
+}
+# Out-Null
+# This cmdlet lets you discard any output as if the output was never done. It not only suppresses console output messages but also throws away 
+# actual output returned to the pipeline by other commands. This comes in handy if you have written all of your scripts with a lot of output to
+# the console and for a specific need, you do not want to clutter up the screen (or) you have no need for the return value a function produces.
+Write-Output "Send text the console?" | Out-Null
+
+
+# <<<<<Write-Debug>>>>>
+# If you are running with the “-Debug” switch, then control will break on the line of code that has “Write-Debug” allowing you to step through code
+# from that statement forward. It is a pretty cool feature if you think about it. Typically, you run code without out the Debug switch. However, 
+# there will come a time when you want to break inside your main loops where you have the most important logic and step through code without having 
+# to dig through all the code. Sprinkle your code with a couple of “Write-Debug” statements per function where you think that you may want to start
+# examining variable values and start stepping through the individual statements.
+
+
+# <<<<<Write-Warning>>>>>
+# Write-Warning has a color coding that catches the attention of the user. Use this when you want to let the user know that something is not normal
+# but the code has to continue anyway as it not a big enough problem to stop execution. Examples of this are when you want to copy files over to a new 
+# location and the files already exist in that target location. If the business process allows overwriting the target, it still might be a good idea to 
+# let the user know that you are overwriting with “Write-Warning” type messages.
+Write-Warning "Hello, this is a warning message"
+
+
+# <<<<<Write-Error/Throw>>>>>
+# Write-Error is to be used for non-terminating errors – meaning, the execution will continue past the Write-Error line after writing the error to the 
+# error stream. Write-Error has a lot of parameters that lets you customize it. The key among them is the Category parameter. Although it used to 
+# signal non-terminating errors, you can in fact stop the execution by setting the environment $ErrorActionPreference.
+# $ErrorActionPreference = "Stop";
+Write-Error "Unable to connect to server." -Category ConnectionError
+Write-Host "The above is non-terminating, there we can reach here"
+
+
+# <<<<<Throw>>>>>
+# Use Throw when you want the program execution to stop (unless there was a try/catch to handle the error and resume from it).
+function Get-Dummy() {
+    # throw string
+    throw "This is an error."
+    # throw object
+    # throw (get-process PowerShell)
+    # afterwards, we can use $error[0].targetobject to examine the error
+}
+
+Get-Dummy
+
+
+# <<<<<Write-Verbose>>>>>
+# This is the most commonly used of all the ones discussed. Basically, this is all the extra information you want to see as your program is running 
+# if it was started with the “-Verbose” switch. Typically code is run without that switch. I usually use for every step within a function. In addition 
+# to giving me an idea of what is being worked on, if an error happens, I also get the step that failed
+
+
+# <<<<<Write-Progress>>>>>
+# example 1
+for($i = 1; $i -lt 101; $i++ )
+{
+    Write-Progress -Id 1 -Activity "Application update ..." -Status 'Progress' -PercentComplete $i -CurrentOperation "Outer loop processing "
+    for($j = 1; $j -lt 101; $j++ )
+    {
+        Write-Progress -Id 2 -Activity "Install application patch $i ..." -Status 'Progress' -PercentComplete $j -CurrentOperation "Inner loop processing"
+    }
+}
+
+
+# example 2
+$outerLoopMax = 255
+$innerLoopMax = 126
+for ($outerCounter=1; $outerCounter -lt $outerLoopMax; $outerCounter++) {
+  Write-Progress -Activity "Main loop progress:" `
+                   -PercentComplete ([int](100 * $outerCounter / $outerLoopMax)) `
+                   -CurrentOperation ("Completed {0}%" -f ([int](100 * $outerCounter / $outerLoopMax))) `
+                   -Status ("Outer loop working on item [{0}]" -f $outerCounter) `
+                   -Id 1
+ 
+    Start-Sleep -Milliseconds 100
+ 
+    for ($innerCounter=1; $innerCounter -lt $innerLoopMax; $innerCounter++) {
+      Write-Progress -Activity "Inner loop progress:" `
+                       -PercentComplete ([int](100 * $innerCounter / $innerLoopMax)) `
+                       -CurrentOperation ("Completed {0}%" -f ([int](100 * $innerCounter / $innerLoopMax))) `
+                       -Status ("Inner loop working on item [{0}]" -f $innerCounter) `
+                       -Id 2 `
+                       -ParentId 1
+ 
+        Start-Sleep -Milliseconds 10
+    }
+}
 
 #########################################
 # How to get help

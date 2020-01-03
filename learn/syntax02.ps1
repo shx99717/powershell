@@ -135,4 +135,4 @@ Get-Process | Sort-Object ID -Descending | Select-Object -First 10 Name,Id,VM `
 # `@{name='lbl';expression={$_}`
 Get-Process | Format-Table Id, Name, @{name='VM(MB)'; expression={'{0:n2}' -f ($_.VM / 1MB)}} -AutoSize
 
--- go check basic01.ps1, line 19 and learn x in y --> Functions
+-- learn x in y --> Functions
