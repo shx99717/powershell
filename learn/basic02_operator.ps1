@@ -181,11 +181,11 @@ $a %= 3
 #####################################
 # >
 # Send all success stream data to output
-.\learn\dummy.ps1 > script.log
+.\dummy.ps1 > script.log
 
 # >>
 # Appends all success stream data to output
-.\learn\dummy.ps1 >> script.log
+.\dummy.ps1 >> script.log
 
 # n>&1
 # Redirects a specified stream (n) to output
@@ -200,7 +200,7 @@ $a %= 3
 # 5	        Debug Stream
 # 6	        Information Stream
 # *	        All Streams
-.\learn\dummy.ps1 3>&1 script.log
+.\dummy.ps1 3>&1 script.log
 
 
 #####################################

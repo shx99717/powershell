@@ -70,5 +70,5 @@ Write-Output  "Unbound arguments: $($Args -join ', ')."
 #######################################################################
 # Inline another file with dot operator
 #######################################################################
-. .\learn\dummy.ps1
+. .\dummy.ps1
 

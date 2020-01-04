@@ -246,7 +246,7 @@ Write-Host -Object 'Hello from host' 6> .\hostmsg.txt
 Get-ChildItem 'C:\', 'Z:\' 2>&1 > result.log
 
 # e.g. the result2.log only contain the Success stream
-.\learn\stream_test.ps1 > result2.log
+.\stream_test.ps1 > result2.log
 
 # e.g. with redirection, we could send not only success but also warning and error stream to a file
 # This example shows how you can combine redirection operators to achieve a desired result.
@@ -272,7 +272,7 @@ Get-ChildItem 'C:\', 'Z:\' 2>&1 > result.log
     Write-Information "Hello" -InformationAction Continue
  } 6> $null
 
- 
+
 
 
 
