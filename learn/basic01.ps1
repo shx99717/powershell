@@ -242,8 +242,39 @@ Write-Host -Object 'Hello from host' 6> .\hostmsg.txt
 # will redirected the Error stream to success stream
 # 2 is Error stream, 1 is the Success stream
 # This example runs dir on one item that will succeed, and one that will error.
-# It uses 2>&1 to redirect the Error stream to the Success stream, and > to send the resultant Success stream to a file called dir.log
+# It uses 2>&1 to redirect the Error stream to the Success stream, and > to send the resultant Success stream to a file called result.log
 Get-ChildItem 'C:\', 'Z:\' 2>&1 > result.log
+
+# e.g. the result2.log only contain the Success stream
+.\learn\stream_test.ps1 > result2.log
+
+# e.g. with redirection, we could send not only success but also warning and error stream to a file
+# This example shows how you can combine redirection operators to achieve a desired result.
+# - 3>&1 redirects the Warning stream to the Success stream.
+# - 2>&1 redirects the Error stream to the Success stream (which also now includes all Warning stream data)
+# - > redirects the Success stream (which now contains both Warning and Error streams) to a file called C:\temp\redirection.log)
+& {
+    Write-Warning "------- warning"
+    Write-Error "------ error"
+    Write-Output "------ success"   
+} 3>&1 2>&1 > result3.log
+
+# e.g. redirect all streams to a file
+& {
+    Write-Warning "------- warning"
+    Write-Error "------ error"
+    Write-Output "------ success"   
+} *> result4.log
+
+# e.g. suppress all Write-Host(internally use Write-Information) and information stream data
+& {
+    Write-Host "Hello"
+    Write-Information "Hello" -InformationAction Continue
+ } 6> $null
+
+ 
+
+
 
 
 #########################################
