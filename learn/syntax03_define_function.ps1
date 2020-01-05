@@ -146,7 +146,82 @@ function Get-Pipeline {
 
 
 # <<<<<Filters>>>>>
-# 
+# A filter is a type of function that runs on each object in the pipeline. 
+# A filter resembles a function with all its statements in a Process block.
+# (A filter is function that just has a process scriptblock)
+# the syntax:
+# filter [<scope:>]<name> {<statement list>}
+filter isEven {
+    if($_ % 2 -eq 0) { $_ }
+}
+
+filter greaterThan([int]$number) {
+    if($_ -gt $number) { $_ }
+}
+
+filter isOdd([switch]$beautify) {
+    if($_ % 2 -ne 0) {
+        if($beautify) {
+            "((($_)))"
+        } else {
+            $_
+        }
+    }
+}
+1..10 | isEven
+1..10 | greaterThan 3
+1..10 | isOdd
+1..10 | isOdd -beautify
+
+
+# <<<<<Function Scope>>>>>
+# - global
+# - local
+# - private
+# - script
+# - using
+# - workflow
+# - <variable-namespace>, Alias:, Env:, Function:, Variable:
+# The default scope for scripts is the script scope. 
+# The default scope for functions and aliases is the local scope, even if they are defined in a script.
+# A function exists in the scope in which it was created.
+# If a function is part of a script, the function is available to statements within that script. 
+# By default, a function in a script is not available at the command prompt.
+
+# specify scope for variable, the syntax:
+# $[<scope-modifier>:]<name> = <value>
+$a = 'one' # local scope
+$Global:a = 'global one' # global scope
+
+
+# specify scope for function, the syntax:
+# function [<scope-modifier>:]<name> {<function-body>}
+# You can specify the scope of a function. For example, the function is added to the global scope in the
+# following example:
+function global:Get-Something {
+}
+# When a function is in the global scope, you can use the function in scripts, in functions, and at
+# the command line.
+# Functions normally create a scope. The items created in a function, such as variables, exist only in
+# the function scope.
+
+
+# <<<<<Finding and Managing Functions Using the Function: Drive>>>>>
+# All the functions and filters in PowerShell are automatically stored in the Function: drive. This drive is exposed by the PowerShell Function provider.
+Get-ChildItem function: # same as ls function:
+
+function sayHello([string]$name) {
+    Write-Host "Hello world, $name"
+}
+# View the definition of a function
+(Get-ChildItem Function:\sayHello).Definition
+# or
+$function:sayHello
+# similar we can get all environmental variables by:
+Get-ChildItem Env:
+
+
+
 
 #########################################################
 # Advanced functions

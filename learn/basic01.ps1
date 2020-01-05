@@ -9,13 +9,51 @@ Set-ExecutionPolicy AllSigned
 # - AllSigned: Scripts need to be signed by a trusted publisher.
 # - Unrestricted: Run all scripts.
 
+
+##################################################
+# Show results of commands page by page
+##################################################
+more .\sample.xml
+Get-Content .\sample.xml | more
+Get-Command Get-* | more
+# A major downside of more is that it only starts with displaying data after the previous command has processed the entire contents. For instance, if you want to page through a huge log file, the following command would first read all the events before you would see the entries:
+# This will be very time-consuming
+Get-EventLog Security | more
+# The way how to solve the performance issue is using Out-Host, which is a performance alternative
+Get-EventLog Security | Out-Host -Paging
+
+#########################################
+# Providers
+#########################################
+# PowerShell providers are Microsoft .NET Framework-based programs that make the data in a specialized data store 
+# available in PowerShell so that you can view and manage it.
+# The data that a provider exposes appears in a drive, and you access the data in a path like you would on a hard 
+# disk drive. 
+
+# PowerShell includes a set of built-in providers that you can use to access the different types of data stores.
+# Provider	    Drive	        Data store
+# Alias	        Alias:	        PowerShell aliases
+# Certificate	Cert:	        x509 certificates for digital signatures
+# Environment	Env:	        Windows environment variables
+# FileSystem	(*)	            File system drives, directories, and files, (*) The FileSystem drives vary on each system.
+# Function	    Function:	    PowerShell functions
+# Registry	    HKLM:, HKCU:	Windows registry
+# Variable	    Variable:	    PowerShell variables
+# WSMan	        WSMan:	        WS-Management configuration information
+
+# To list the providers that are available in your session
+Get-PSProvider
+
 #########################################
 # MISC
 #########################################
 # Current PowerShell version:
 $PSVersionTable
 
-# output messages
+
+#########################################
+# Understand Write-XXXXX
+#########################################
 # A good script generally use Write-Verbose a lot! 
 # The perfect PowerShell script/function uses all of the above in the right mix for the best user/developer experience.
 # 
@@ -94,6 +132,24 @@ function Get-DataTable()
 # actual output returned to the pipeline by other commands. This comes in handy if you have written all of your scripts with a lot of output to
 # the console and for a specific need, you do not want to clutter up the screen (or) you have no need for the return value a function produces.
 Write-Output "Send text the console?" | Out-Null
+
+
+# Remark, difference between Write-Host and Write-Output
+# Write-Host writes to the console itself
+# Write-Output on the other hand writes to the pipeline, so the next command can accept it as its input
+# It gets written to the console if it is not passed down the pipeline or assigned to a variable, this is because
+# at the end of every pipeline any data remaining is output to Out-Default which sends to Out-Host, i.e. it
+# writes the data to the screen.
+# another simple explanation is: Write-Output sends the output to the pipeline. From there it can be piped to another cmdlet or assigned to a variable.
+#  Write-Host sends it directly to the console.
+$a = 'Testing Write-OutPut'  | Write-Output
+$b = 'Testing Write-Host' | Write-Host
+Get-Variable a, b
+# output is:
+# Name                           Value
+# ----                           -----
+# a                              Testing Write-OutPut
+# b
 
 
 # <<<<<Write-Debug>>>>>
@@ -274,8 +330,50 @@ Get-ChildItem 'C:\', 'Z:\' 2>&1 > result.log
 
 
 
+#########################################
+# Understand Out-XXXXX
+#########################################
+# - Out-Host
+# - Out-Printer
+# - Out-File
+# - Out-GridView
+
+# Because Out- cmdlets are supposed to deal with the final result of whatever command you’ve run, they themselves (with one exception) don’t
+# produce any output. If you’re using an Out- cmdlet, it will normally be the very last thing on your command line. 
+# After the Out- cmdlet runs, there won’t be anything in the pipeline for additional cmdlets to act upon.
+# There are also exceptions, e.g. the Out-* cmdlets from 3rd party libraries
+
+#  What’s interesting about all the Out- cmdlets is that they can’t actually process “real” objects. The Out- cmdlets can only handle a special type of formatting object produced by the shell’s formatting subsystem.
+
+# When an Out- cmdlet receives “normal” objects, it internally calls one of the Format- cmdlets based on a set of internal rules and configuration defaults. 
+# The Format- cmdlet produces formatting objects that describe how to construct output, and the Out- cmdlet puts 
+# that output into the specified device. So running this:
+Get-Command Get-*
+Get-Command Get-* | Format-Table
+Get-Command Get-* | Format-Table | Out-Host
+# they are the same, because Format-Table is by default used by the Get-Command cmdlet
+# The lesson here is that the Out- cmdlets can only use what’s produced by a Format- cmdlet. For the most part, only an Out- cmdlet can handle what the Format- cmdlets produce. So a Format- cmdlet will always be the last thing on your command line, with the sole exception of when it’s followed by an Out- cmdlet.
+
+# <<<<<Out-Host>>>>>
+# In reality, the Out-Host portion of that is unnecessary, because Windows PowerShell has the Out-Default cmdlet 
+# hardcoded into the end of the pipeline. That cmdlet simply forwards things to Out-Host(Out-Default by default is Out-Host).
+# So these commands are the same: (the Format-* is omitted, because they will be also internally called)
+Get-Command Get-*
+Get-Command Get-* | Out-Host
+Get-Command Get-* | Out-Default
 
 
+# <<<<<Out-Printer>>>>>
+# sends output to a printer. This output is formatted, either by whatever Format- cmdlet you used or by the defaults in the formatting subsystem
+
+# <<<<<Out-File>>>>>
+# sends output to a file. This is functionally the same as running something like Dir > file.txt. 
+# The > and >> shortcuts are actually using Out-File under the hood. Out-File has tons of options for 
+# setting the output file width (which affects formatting decisions made by the shell), character encoding, 
+# appending or overwriting, and so on
+
+# <<<<<Out-GridView>>>>>
+# This displays your objects in a graphical table with click-to-sort column headers and a search/filter box to help locate specific results
 
 #########################################
 # How to get help
