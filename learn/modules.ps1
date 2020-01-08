@@ -132,3 +132,6 @@ $env:PSModulePath
 
 check each of the links in the docs
 https://docs.microsoft.com/en-us/powershell/scripting/developer/module/understanding-a-windows-powershell-module
+
+how to use
+https://www.powershellgallery.com/
