@@ -36,10 +36,10 @@
 # or runtime scripts. Manifest files are also useful for tracking metadata such as authoring and versioning information.
 
 # Finally, a script module, like any other module that isn't dynamically created, needs to be saved in a folder that PowerShell can reasonably discover. Usually, this is on the PowerShell module path; but if necessary you can explicitly describe where your module is installed. 
-# at learn\modules\House.psm1, it is a script module that manages houses in a subdivision
+# at learn\modules\House\House.psm1, it is a script module that manages houses in a subdivision
 # I am sharing it online or some network address that the other people can access
 # Now my colleague will use my module by
-Import-Module .\learn\modules\House.psm1
+Import-Module .\learn\modules\House\House.psm1
 $Neighborhood
 New-House # This is NOT accessible, because it is not exported
 Get-House # This is accessible
