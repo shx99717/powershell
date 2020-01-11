@@ -129,10 +129,6 @@ $PSScriptRoot
 # This environment variable contains a list of the directories in which Windows PowerShell modules are stored. Windows PowerShell uses the value of this variable when importing modules automatically and updating Help topics for modules.
 $env:PSModulePath 
 
-
-check each of the links in the docs
-https://docs.microsoft.com/en-us/powershell/scripting/developer/module/understanding-a-windows-powershell-module
-
 how to use
 https://www.powershellgallery.com/
 
